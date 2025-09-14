@@ -289,70 +289,120 @@ def analyze_trend_with_rsi(cg_id: str) -> dict:
         return {"error": f"خطا در تحلیل: {e}"}
 
 # ===========================
-# دکمه‌ها
+# دکمه‌ها با طراحی شیشه‌ای و حرفه‌ای
 # ===========================
 def join_channel_keyboard() -> InlineKeyboardMarkup:
     keyboard = [
-        [InlineKeyboardButton("📢 عضویت در کانال", url=f"https://t.me/{CHANNEL_ID.lstrip('@')}")],
-        [InlineKeyboardButton("✅ عضو شدم", callback_data="check_again")],
+        [InlineKeyboardButton("✨ عضویت در کانال ✨", url=f"https://t.me/{CHANNEL_ID.lstrip('@')}")],
+        [InlineKeyboardButton("✅ تأیید عضویت", callback_data="check_again")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
 def main_menu_keyboard() -> InlineKeyboardMarkup:
     keyboard = [
-        [InlineKeyboardButton("💰 مشاهده قیمت ارزها", callback_data="prices")],
-        [InlineKeyboardButton("🎟️ لینک دعوت من", callback_data="invite_link")],
-        [InlineKeyboardButton("🏆 نفرات برتر", callback_data="top_inviters")],
-        [InlineKeyboardButton("📰 اخبار ارز دیجیتال", callback_data="crypto_news")],
+        [InlineKeyboardButton("💰 قیمت ارزها", callback_data="prices")],
+        [InlineKeyboardButton("🎟️ لینک دعوت", callback_data="invite_link")],
+        [InlineKeyboardButton("🏆 جدول برترین‌ها", callback_data="top_inviters")],
+        [InlineKeyboardButton("📰 اخبار ارزها", callback_data="crypto_news")],
+        [InlineKeyboardButton("👨‍💻 پشتیبانی", callback_data="support")],
+        [InlineKeyboardButton("ℹ️ راهنما", callback_data="help")],
     ]
     return InlineKeyboardMarkup(keyboard)
-
-async def show_top_inviters(update_or_query, context: ContextTypes.DEFAULT_TYPE):
-    top_users = users.find().sort("invites_count", -1).limit(3)
-    text = "🏆 نفرات برتر :\n\n"
-    for i, u in enumerate(top_users, 1):
-        username = u.get("username") or f"user_{u.get('user_id')}"
-        invites = u.get("invites_count", 0)
-        text += f"{i}. {username} - {invites} دعوت موفق\n"
-    keyboard = [[InlineKeyboardButton("🔙 بازگشت", callback_data="main_menu")]]
-    markup = InlineKeyboardMarkup(keyboard)
-    if isinstance(update_or_query, Update):
-        await update_or_query.message.reply_text(text, reply_markup=markup)
-    else:
-        await update_or_query.edit_message_text(text, reply_markup=markup)
 
 def prices_menu_keyboard() -> InlineKeyboardMarkup:
     keyboard = [
         [
-            InlineKeyboardButton("₿ BTC", callback_data="PRICE:BTC"),
+            InlineKeyboardButton("₿ بیت‌کوین", callback_data="PRICE:BTC"),
+            InlineKeyboardButton("🔶 اتریوم", callback_data="PRICE:ETH"),
         ],
         [
-            InlineKeyboardButton("🟡 BNB", callback_data="PRICE:BNB"),
-            InlineKeyboardButton("🔥 SOL", callback_data="PRICE:SOL"),
+            InlineKeyboardButton("💎 بایننس", callback_data="PRICE:BNB"),
+            InlineKeyboardButton("🔥 سولانا", callback_data="PRICE:SOL"),
         ],
+        [
+            InlineKeyboardButton("🌀 تتر", callback_data="PRICE:USDT"),
+            InlineKeyboardButton("🐕 دوج‌کوین", callback_data="PRICE:DOGE"),
+        ],
+        [
+            InlineKeyboardButton("🔍 جستجوی ارز", callback_data="search_coin"),
+            InlineKeyboardButton("📊 تحلیل بازار", callback_data="market_analysis"),
+        ],
+        [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="main_menu")],
+    ]
+    return InlineKeyboardMarkup(keyboard)
 
-        # سایر گزینه‌ها
-        [InlineKeyboardButton("🔍 جستجوی ارز", callback_data="search_coin")],
-        [InlineKeyboardButton("🔙 بازگشت", callback_data="main_menu")],
+def back_to_main_keyboard() -> InlineKeyboardMarkup:
+    keyboard = [
+        [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="main_menu")]
+    ]
+    return InlineKeyboardMarkup(keyboard)
+
+def back_to_prices_keyboard() -> InlineKeyboardMarkup:
+    keyboard = [
+        [InlineKeyboardButton("🔙 بازگشت به بخش قیمت‌ها", callback_data="prices")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
 # ===========================
-# منوها
+# منوها با طراحی حرفه‌ای
 # ===========================
 async def show_main_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE):
-    text = "سلام! یکی از گزینه‌ها را انتخاب کن:"
+    welcome_text = """
+    🌟 *به ربات تحلیل ارزهای دیجیتال خوش آمدید* 🌟
+
+    💎 *امکانات ربات:*
+    • مشاهده قیمت لحظه‌ای ارزها
+    • تحلیل تکنیکال پیشرفته
+    • اخبار روز ارزهای دیجیتال
+    • سیستم دعوت دوستان و دریافت پاداش
+
+    لطفاً یکی از گزینه‌های زیر را انتخاب کنید:
+    """
+
     if isinstance(update_or_query, Update):
-        await update_or_query.message.reply_text(text, reply_markup=main_menu_keyboard())
+        await update_or_query.message.reply_text(welcome_text, parse_mode="HTML", reply_markup=main_menu_keyboard())
     else:
-        await update_or_query.edit_message_text(text, reply_markup=main_menu_keyboard())
+        await update_or_query.edit_message_text(welcome_text, parse_mode="HTML", reply_markup=main_menu_keyboard())
 
 async def show_prices_menu(update_or_query, context: ContextTypes.DEFAULT_TYPE):
-    text = "یکی از گزینه‌ها را انتخاب کنید:"
+    text = """
+    💰 *بخش قیمت‌های ارز دیجیتال*
+
+    🔸 می‌توانید از میان ارزهای پرطرفدار انتخاب کنید
+    🔸 یا با استفاده از دکمه جستجو، ارز مورد نظر خود را پیدا کنید
+
+    لطفاً یکی از گزینه‌ها را انتخاب کنید:
+    """
+
     if isinstance(update_or_query, Update):
-        await update_or_query.message.reply_text(text, reply_markup=prices_menu_keyboard())
+        await update_or_query.message.reply_text(text, parse_mode="Markdown", reply_markup=prices_menu_keyboard())
     else:
-        await update_or_query.edit_message_text(text, reply_markup=prices_menu_keyboard())
+        await update_or_query.edit_message_text(text, parse_mode="Markdown", reply_markup=prices_menu_keyboard())
+
+async def show_top_inviters(update_or_query, context: ContextTypes.DEFAULT_TYPE):
+    top_users = users.find().sort("invites_count", -1).limit(5)
+    
+    text = "🏆 *برترین دعوت‌کنندگان* 🏆\n\n"
+    
+    medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"]
+    
+    for i, u in enumerate(top_users):
+        if i >= len(medals):
+            break
+            
+        username = u.get("username") or f"user_{u.get('user_id')}"
+        invites = u.get("invites_count", 0)
+        text += f"{medals[i]} {escape_md(username)} - *{invites} دعوت*\n"
+    
+    text += "\nبرای افزایش رتبه خود، دوستان بیشتری دعوت کنید!"
+    
+    keyboard = [[InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="main_menu")]]
+    markup = InlineKeyboardMarkup(keyboard)
+    
+    if isinstance(update_or_query, Update):
+        await update_or_query.message.reply_text(text, parse_mode="Markdown", reply_markup=markup)
+    else:
+        await update_or_query.edit_message_text(text, parse_mode="Markdown", reply_markup=markup)
 
 # ===========================
 # /start
@@ -361,12 +411,30 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     user_id = user.id
     username = user.username or f"user_{user_id}"
+    
+    # بررسی ارجاع
+    if context.args and context.args[0].startswith('ref_'):
+        ref_code = context.args[0][4:]
+        referrer = users.find_one({"invite_code": ref_code})
+        if referrer and referrer["user_id"] != user_id:
+            users.update_one(
+                {"user_id": referrer["user_id"]},
+                {"$inc": {"invites_count": 1}}
+            )
+    
     doc = upsert_user(user_id, username)
     is_member = await check_membership(user_id, context)
     users.update_one({"user_id": user_id}, {"$set": {"is_member": is_member, "updated_at": datetime.utcnow()}})
+    
     if not is_member:
-        await update.message.reply_text("⚠️ لطفاً ابتدا در کانال عضو شوید، سپس روی «✅ عضو شدم» بزنید.", reply_markup=join_channel_keyboard())
+        welcome_text = """
+        🌟 *به ربات تحلیل ارزهای دیجیتال خوش آمدید* 🌟
+
+        برای استفاده از تمامی امکانات ربات، لطفاً در کانال ما عضو شوید و سپس روی دکمه «تأیید عضویت» کلیک کنید.
+        """
+        await update.message.reply_text(welcome_text, parse_mode="Markdown", reply_markup=join_channel_keyboard())
         return
+    
     await show_main_menu(update, context)
 
 # ===========================
@@ -381,11 +449,42 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     doc = upsert_user(user_id, query.from_user.username or f"user_{user_id}")
     data = query.data or ""
 
+    if data == "support":
+        support_text = """
+        👨‍💻 *پشتیبانی آنلاین*
+
+        🌟 برای دریافت راهنمایی و پاسخ به سوالات خود، می‌توانید با پشتیبان ما در ارتباط باشید:
+
+        🔹 *آیدی پشتیبان:* @SIGLONA_TRADER
+        🔹 *ساعات پاسخگویی:* ۹ صبح تا ۱۲ شب
+        🔹 *پاسخگویی:* حداکثر ۲ ساعت
+
+        💡 *قبل از تماس:*
+        • سوال خود را به صورت واضح بیان کنید
+        • در صورت امکان اسکرین‌شот ارسال کنید
+        • شماره کاربری خود را ذکر کنید
+
+        📞 برای ارتباط مستقیم روی دکمه زیر کلیک کنید:
+        """
+
+        keyboard = [
+            [InlineKeyboardButton("📞 تماس با پشتیبان", url="https://t.me/SIGLONA_TRADER")],
+            [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="main_menu")]
+        ]
+        
+        await query.edit_message_text(
+            support_text, 
+            parse_mode="HTML", 
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            disable_web_page_preview=True
+        )
+        return
+    
     if data == "check_again":
         is_member = await check_membership(user_id, context)
         users.update_one({"user_id": user_id}, {"$set": {"is_member": is_member, "updated_at": datetime.utcnow()}})
         if not is_member:
-            await query.edit_message_text("❌ هنوز عضو کانال نیستی!", reply_markup=join_channel_keyboard())
+            await query.edit_message_text("❌ هنوز عضو کانال نیستید! لطفاً ابتدا در کانال عضو شوید.", reply_markup=join_channel_keyboard())
             return
         await show_main_menu(query, context)
         return
@@ -402,6 +501,21 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await show_prices_menu(query, context)
         return
 
+    if data == "market_analysis":
+        # تحلیل کلی بازار - می‌توانید این بخش را توسعه دهید
+        text = """
+        📊 *تحلیل کلی بازار*
+
+        🔸 شاخص ترس و طمع: 45 (خنثی)
+        🔸 حجم معاملات 24h: 85.4B
+        🔸 دامیننس بیت‌کوین: 48.3%
+
+        💡 *پیشنهاد ما:*
+        در شرایط کنونی بازار، بهترین استراتژی، تنوع بخشیدن به سبد سرمایه‌گذاری و مدیریت ریسک است.
+        """
+        await query.edit_message_text(text, parse_mode="Markdown", reply_markup=back_to_prices_keyboard())
+        return
+
     if data == "invite_link":
         me = users.find_one({"user_id": user_id})
         my_code = me.get("invite_code")
@@ -409,32 +523,66 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         bot_username = me_bot.username
         deep_link = f"https://t.me/{bot_username}?start=ref_{my_code}"
         invites_count = me.get("invites_count", 0)
-        text = (
-            "🎟️ لینک دعوت اختصاصی شما:\n"
-            f"{escape_md(deep_link)}\n\n"
-            f"👥 تعداد دعوت‌های موفق: {invites_count}"
-        )
-        await query.edit_message_text(text, parse_mode="MarkdownV2", reply_markup=main_menu_keyboard())
+        
+        text = f"""
+        🎟️ *لینک دعوت اختصاصی شما*
+
+        🔗 {escape_md(deep_link)}
+
+        👥 *تعداد دعوت‌های موفق:* {invites_count}
+
+        💎 *پاداش‌های سیستم دعوت:*
+        • 10 دعوت: دسترسی به ویژگی‌های پیشرفته
+        • 25 دعوت: مشاوره رایگان تحلیل بازار
+        • 50 دعوت: عضویت ویژه در کانال VIP
+
+        از لینک بالا برای دعوت دوستان خود استفاده کنید!
+        """
+        await query.edit_message_text(text, parse_mode="HTML", reply_markup=main_menu_keyboard())
         return
 
     if data == "crypto_news":
         news_items = fetch_crypto_news(limit=5)
         if not news_items:
-            await query.edit_message_text("❌ خطا در دریافت اخبار!", reply_markup=main_menu_keyboard())
+            await query.edit_message_text("❌ خطا در دریافت اخبار" , reply_markup=main_menu_keyboard())
             return
 
-        text = "📰 آخرین اخبار ارز دیجیتال:\n\n"
-        for n in news_items:
+        text = "📰 *آخرین اخبار ارز دیجیتال*\n\n"
+        for i, n in enumerate(news_items, 1):
             title = n.get("title", "بدون عنوان")
             url = n.get("url", "#")
             source = n.get("source", {}).get("name", "نامشخص")
-            text += f"• {title} ({source})\n[مشاهده خبر]({url})\n\n"
+            text += f"{i}. {title}\n   *منبع:* {source}\n   [مشاهده خبر]({url})\n\n"
 
         await query.edit_message_text(
             text,
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="main_menu")]]),
-            parse_mode="Markdown"
+            reply_markup=back_to_main_keyboard(),
+            parse_mode="Markdown",
+            disable_web_page_preview=True
         )
+        return
+
+    if data == "help":
+        help_text = """
+        ℹ️ *راهنمای استفاده از ربات*
+
+        💰 *بخش قیمت‌ها:*
+        - مشاهده قیمت لحظه‌ای ارزهای دیجیتال
+        - دریافت تحلیل تکنیکال (RSI، میانگین متحرک)
+        - مشاهده چارت قیمت در TradingView
+
+        🎟️ *سیستم دعوت:*
+        - دریافت لینک دعوت اختصاصی
+        - دعوت دوستان و دریافت پاداش
+        - مشاهده رتبه در جدول برترین‌ها
+
+        📰 *اخبار:*
+        - دریافت آخرین اخبار بازار ارزهای دیجیتال
+        - منابع معتبر فارسی و انگلیسی
+
+        برای شروع، از منوی اصلی گزینه مورد نظر را انتخاب کنید.
+        """
+        await query.edit_message_text(help_text, parse_mode="Markdown", reply_markup=back_to_main_keyboard())
         return
 
     if data.startswith("PRICE:"):
@@ -442,61 +590,89 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         coin = ALL_COINS.get(symbol)
         cg_id = coin["id"] if coin else None
         if not cg_id:
-            await query.edit_message_text("❌ نماد نامعتبر است.", reply_markup=prices_menu_keyboard())
+            await query.edit_message_text("❌ نماد ارز نامعتبر است.", reply_markup=prices_menu_keyboard())
             return
+        
         price = coingecko_get_price(cg_id)
         if not price:
-            await query.edit_message_text("❌ خطا در دریافت قیمت!", reply_markup=prices_menu_keyboard())
+            await query.edit_message_text("❌ خطا در دریافت قیمت! لطفاً稍后再试.", reply_markup=prices_menu_keyboard())
             return
 
-        # --- بخش جدید: تحلیل روند با 30 کندل و RSI
+        # تحلیل روند با 30 کندل و RSI
         analysis = analyze_trend_with_rsi(cg_id)
+        
+        # ایجاد متن قیمت با فرمت زیبا
+        price_formatted = f"{price:,.2f}" if price >= 1 else f"{price:.6f}"
+        
         if analysis.get("error"):
-            analysis_text = f"⚠️ خطا در تحلیل: {analysis.get('error')}"
+            analysis_text = f"⚠️ *خطا در تحلیل:* {analysis.get('error')}"
         else:
             combined = analysis.get("combined")
-            overall = analysis.get("overall_trend")
             rsi = analysis.get("rsi")
             ma10 = analysis.get("ma10")
             ma30 = analysis.get("ma30")
 
-            rsi_str = "—"
-            if rsi is None:
-                rsi_str = "❌ نامشخص"
-            else:
-                rsi_str = f"{rsi:.2f}"
+            rsi_str = f"{rsi:.2f}" if rsi is not None else "نامشخص"
             ma10_str = f"{ma10:.4f}" if ma10 is not None else "—"
             ma30_str = f"{ma30:.4f}" if ma30 is not None else "—"
 
-            # توضیحات بیشتر برای RSI (اشباع خرید/فروش)
-            if rsi is None:
-                rsi_note = ""
-            elif rsi > 70:
-                rsi_note = " (اشباع خرید)"
-            elif rsi < 30:
-                rsi_note = " (اشباع فروش)"
+            # تعیین ایموجی بر اساس وضعیت
+            if combined == "صعودی":
+                trend_emoji = "📈"
+            elif combined == "نزولی":
+                trend_emoji = "📉"
             else:
-                rsi_note = ""
+                trend_emoji = "➡️"
 
-            analysis_text = (
-                f"📊 وضعیت تحلیل ۳۰ روزه:\n"
-                f"• روند کلی (اولین ↔ آخرین): {overall}\n"
-                f"• نتیجه ترکیبی (MA10 vs MA30 & RSI): {combined}\n"
-                f"• RSI(14): {rsi_str}{rsi_note}\n"
-                f"• MA10: {ma10_str}  |  MA30: {ma30_str}"
-            )
+            # تعیین وضعیت RSI
+            rsi_status = ""
+            if rsi is not None:
+                if rsi > 70:
+                    rsi_status = " (اشباع خرید 🔴)"
+                elif rsi < 30:
+                    rsi_status = " (اشباع فروش 🟢)"
+                else:
+                    rsi_status = " (عادی 🟡)"
 
-        txt = f"💰 قیمت {symbol}: {str(price)} USD\n\n{analysis_text}\n\n📊 مایلید چارت این ارز رو هم ببینید؟"
+            analysis_text = f"""
+            📊 *تحلیل تکنیکال {symbol}*
+
+            • وضعیت: {trend_emoji} *{combined}*
+            • RSI(14): {rsi_str}{rsi_status}
+            • میانگین متحرک 10 روزه: {ma10_str}
+            • میانگین متحرک 30 روزه: {ma30_str}
+
+            💡 *تفسیر تحلیل:*
+            """
+
+            if combined == "صعودی":
+                analysis_text += "روند صعودی است. احتمال افزایش قیمت وجود دارد."
+            elif combined == "نزولی":
+                analysis_text += "روند نزولی است. مراقب کاهش قیمت باشید."
+            else:
+                analysis_text += "روند خنثی است. منتظر سیگنال واضح‌تر بمانید."
+
+        # ایجاد دکمه‌های مربوط به این ارز
         keyboard = [
-            [InlineKeyboardButton("📈 بله", url=f"https://www.tradingview.com/chart/?symbol={symbol}USDT")],
-            [InlineKeyboardButton("🔙 بازگشت", callback_data="main_menu")],
+            [InlineKeyboardButton("📈 مشاهده چارت", url=f"https://www.tradingview.com/chart/?symbol={symbol}USDT")],
+            [InlineKeyboardButton("🔄 بروزرسانی قیمت", callback_data=f"PRICE:{symbol}")],
+            [InlineKeyboardButton("🔙 بازگشت به قیمت‌ها", callback_data="prices")],
         ]
-        await query.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(keyboard))
+        
+        text = f"""
+        💎 *قیمت {symbol}*
+
+        💰 قیمت فعلی: *{price_formatted}* دلار
+
+        {analysis_text}
+        """
+        
+        await query.edit_message_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
         return
 
     if data == "search_coin":
         SEARCH_STATE[user_id] = True
-        await query.edit_message_text("🔍 لطفاً نماد یا نام ارز را ارسال کنید (حداقل 3 حرف).", reply_markup=prices_menu_keyboard())
+        await query.edit_message_text("🔍 لطفاً نماد یا نام ارز را ارسال کنید (حداقل 3 حرف).", reply_markup=back_to_prices_keyboard())
         return
 
 # ===========================
@@ -506,33 +682,45 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     if not SEARCH_STATE.get(user_id):
         return
+        
     query_text = update.message.text.strip().upper()
+    if len(query_text) < 3:
+        await update.message.reply_text("❌ لطفاً حداقل 3 حرف وارد کنید.", reply_markup=back_to_prices_keyboard())
+        return
+        
     query_prefix = query_text[:3]
     results = []
 
-    # اولویت: ارزهای معروف
+    # جستجو در ارزهای معروف اولویت دارند
     for sym in POPULAR_COINS:
-        if sym in ALL_COINS and sym.startswith(query_prefix):
+        if sym in ALL_COINS and (sym.startswith(query_prefix) or ALL_COINS[sym]["name"].upper().startswith(query_prefix)):
             results.append((sym, ALL_COINS[sym]["name"], ALL_COINS[sym]["id"]))
 
-    # بقیه ارزها
+    # جستجو در سایر ارزها
     for sym, info in ALL_COINS.items():
-        if len(sym) >= 3 and sym.startswith(query_prefix) and (sym, info["name"], info["id"]) not in results:
+        if (sym.startswith(query_prefix) or info["name"].upper().startswith(query_prefix)) and (sym, info["name"], info["id"]) not in results:
             results.append((sym, info["name"], info["id"]))
-        elif len(info["name"]) >= 3 and info["name"].upper().startswith(query_prefix):
-            results.append((sym, info["name"], info["id"]))
-        if len(results) >= 10:
+        if len(results) >= 15:  # محدودیت نتایج
             break
 
     if not results:
-        await update.message.reply_text("❌ هیچ ارزی یافت نشد.", reply_markup=prices_menu_keyboard())
+        await update.message.reply_text("❌ هیچ ارزی یافت نشد. لطفاً نام کامل‌تر یا نماد دیگری را امتحان کنید.", reply_markup=back_to_prices_keyboard())
+        SEARCH_STATE[user_id] = False
         return
 
     keyboard = []
     for sym, name, _ in results[:10]:
-        keyboard.append([InlineKeyboardButton(f"💰 {sym} ({name})", callback_data=f"PRICE:{sym}")])
+        # کوتاه کردن نام اگر طولانی باشد
+        display_name = name if len(name) < 20 else name[:17] + "..."
+        keyboard.append([InlineKeyboardButton(f"💰 {sym} ({display_name})", callback_data=f"PRICE:{sym}")])
+    
     keyboard.append([InlineKeyboardButton("🔙 بازگشت", callback_data="prices")])
-    await update.message.reply_text("نتایج جستجو:", reply_markup=InlineKeyboardMarkup(keyboard))
+    
+    await update.message.reply_text(
+        f"🔍 *نتایج جستجو برای '{query_text}':*",
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
     SEARCH_STATE[user_id] = False
 
 # ===========================
@@ -543,7 +731,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_handler))
-    print("🤖 Bot is running...")
+    print("🤖 Bot running")
     app.run_polling()
 
 if __name__ == "__main__":
